@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Secrets
+.env
+
+# Local state: which events have already been sent
+seen.json
+
+# Local working notes, not part of the published project
+CLAUDE.md
+
+# macOS
+.DS_Store
