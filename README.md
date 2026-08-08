@@ -35,12 +35,12 @@ Telegram message with what's worth going to.
 
 ## Planned architecture
 
-Nothing below is built yet — this repo is at step 1 of 9. Each piece lands
-in its own commit, in this order:
+This repo is at step 2 of 9. Each piece lands in its own commit, in this
+order — ✅ means it exists today:
 
 | Piece | Role |
 | --- | --- |
-| `sources.yaml` | The source list. Two kinds: `page` (a URL to fetch and parse) and `search` (a query run through the Claude API's web search tool) |
+| ✅ `sources.yaml` + `src/sources.py` | The source list and its loader. Two kinds: `page` (a URL to fetch and parse) and `search` (a query run through the Claude API's web search tool) |
 | `src/fetch.py` | HTTP GET a page, strip the HTML down to visible text |
 | `src/extract.py` | One Claude API call per source that extracts events as JSON *and* applies the professional-only filter in the same pass |
 | `src/dedupe.py` | Fuzzy title matching across platforms, plus `seen.json` so each digest only carries new events |

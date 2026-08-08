@@ -1,0 +1,41 @@
+# Where to look for events.
+#
+# Every source has a `name` and a `type`:
+#   page   — a URL to fetch and parse (needs `url`)
+#   search — a web search query run through the Claude API (needs `query`)
+#
+# Add `enabled: false` to mute a source without losing its URL.
+
+sources:
+  # --- Event platforms -------------------------------------------------
+  - name: Luma SF
+    type: page
+    url: https://lu.ma/sf
+
+  - name: Luma AI
+    type: page
+    url: https://lu.ma/ai
+
+  - name: Partiful Discover
+    type: page
+    url: https://partiful.com/discover
+    # Partiful is mostly private invites; this catches the public ones.
+
+  - name: Eventbrite SF Tech
+    type: page
+    url: https://www.eventbrite.com/d/ca--san-francisco/technology--events/
+
+  # --- Company events --------------------------------------------------
+  # These companies don't keep one scrapable events page, so search
+  # instead of guessing at a URL that will rot.
+  - name: Google SF
+    type: search
+    query: Google San Francisco Bay Area tech talk or developer event this week
+
+  - name: Nvidia SF
+    type: search
+    query: Nvidia San Francisco Bay Area AI event or meetup this week
+
+  - name: OpenAI SF
+    type: search
+    query: OpenAI San Francisco event demo day or developer meetup this week
