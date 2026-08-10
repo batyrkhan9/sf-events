@@ -14,6 +14,9 @@ venv/
 # Local state: which events have already been sent
 seen.json
 
+# Saved pages for offline development
+raw/
+
 # Local working notes, not part of the published project
 CLAUDE.md
 
