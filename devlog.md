@@ -81,3 +81,33 @@ descriptions Luma doesn't provide) and the correct Luma category URL. Devpost,
 GDG, Cerebral Valley and SF Tech Week publish none and were left out. Four
 working sources across three platforms now, and the lesson is the same one as
 above: a source list written from memory is a hypothesis, not a configuration.
+
+## Step 4 — extraction, and the cheapest thing that works
+
+The parser reads the schema.org JSON-LD embedded in each page and normalises
+it into one `Event` shape. Two site conventions to handle: Meetup emits bare
+`@type: Event` objects, Luma and Eventbrite nest them inside an `ItemList`.
+82 events parsed across four sources, 52 after the location check and an
+exact-duplicate pass. All of it free.
+
+The location check keeps events whose location it can't identify, and only
+drops on a confident signal. Luma routinely gives a venue name with no city —
+"Frontier Tower", "Convex" — so a strict allowlist would throw away real SF
+events. Being wrong in the keep direction costs a fraction of a cent; being
+wrong in the drop direction means missing the thing this tool exists to find.
+It correctly caught an Austin event whose title read "TechCrunch Disrupt SF".
+
+Testing surfaced a bug that would have been invisible in production: Meetup
+sends `startDate` in UTC, Luma sends local offsets. The first implementation
+just sliced the first five characters of the time, so a 6pm Tuesday Meetup
+event was being recorded as 1am Wednesday — wrong time and wrong day, on
+every Meetup event. Everything now converts to Pacific. The giveaway was an
+event whose own title contained the time: "SF Edition - Saturday, 10:00 AM"
+was displaying as 17:00.
+
+The filter is one API call for the whole run rather than one per event, with
+structured outputs so the response is a validated schema instead of prose to
+parse. Roughly half a cent per run, about fifteen cents a month. It is
+written but has never been executed — `--estimate` prints the prompt and the
+cost without sending anything, and `--filter` is the only path that spends
+money. Deliberate: the code is ready whenever the API key is, and not before.
