@@ -73,3 +73,11 @@ Partiful's five SF entries were a candle class, a watercolour picnic, a photo
 walk, a pastry pop-up and "Berkeley Nights." Not one professional event.
 Guessing at source URLs and confirming they work are very different things,
 and it was worth finding that out at step 3 rather than step 8.
+
+That left the project looking thin — one good source and one dirty one is not
+worth building a tool for. The fix was to go looking for other sites that
+publish structured data, which turned up Meetup (a third platform, with
+descriptions Luma doesn't provide) and the correct Luma category URL. Devpost,
+GDG, Cerebral Valley and SF Tech Week publish none and were left out. Four
+working sources across three platforms now, and the lesson is the same one as
+above: a source list written from memory is a hypothesis, not a configuration.
