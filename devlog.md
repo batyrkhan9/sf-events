@@ -41,3 +41,35 @@ boolean coercion bit: a test source named `On` was parsed as the boolean
 
 Also worth noting: the system `python3` here is 3.9, below the 3.11 the
 project needs, so the venv is built from the Anaconda 3.11 interpreter.
+
+## Step 3 — the page fetcher, and a change of plan
+
+The fetcher itself is small: GET with a browser User-Agent (Python's default
+gets 403'd plenty of places), strip the tags that never hold event listings,
+collapse the blank-line sludge. It returns both the raw HTML and the cleaned
+text, and a dead source raises `FetchError` rather than returning an empty
+string — the pipeline has to be able to tell "this site is down" from "no
+events today," and empty text looks identical to both.
+
+The bigger decision came first. Asking what the API would cost led to
+realising these sites embed their event data as JSON right in the HTML —
+`schema.org` blocks and Next.js `__NEXT_DATA__` blobs. Parsing that is free,
+exact, and sidesteps the JavaScript-rendering problem entirely. So extraction
+splits from filtering: structured data gives us the fields, and Claude only
+judges professional-vs-not on a title and a line of description. That takes
+the per-page cost from ~10,000 tokens to ~40, or roughly a cent a month
+instead of ten dollars. It contradicts CLAUDE.md's "same call" design, which
+was right when both halves needed a model to read a page and isn't now that
+one half is a JSON parse. Web search sources are muted until step 5 for the
+same reason — they're the one part that can't be free.
+
+Fetching the four real URLs was the most useful thing in this step, because
+two of the four sources turned out to be worthless. Luma SF is excellent: 20
+events with title, start, end, venue, url, price and host. Eventbrite works
+but returns Hong Kong conferences from a San Francisco URL, plus the same
+event three times — dedup in step 6 just justified itself. But `lu.ma/ai`
+returns zero events (it lists calendars, not events — wrong URL), and
+Partiful's five SF entries were a candle class, a watercolour picnic, a photo
+walk, a pastry pop-up and "Berkeley Nights." Not one professional event.
+Guessing at source URLs and confirming they work are very different things,
+and it was worth finding that out at step 3 rather than step 8.
