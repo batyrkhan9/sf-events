@@ -12,18 +12,34 @@ sources:
     type: page
     url: https://lu.ma/sf
 
-  - name: Luma AI
+  # lu.ma/ai is a category landing page — it lists calendars, not events,
+  # and returned zero. The city-scoped feed is the one with events in it.
+  - name: Luma AI SF
     type: page
-    url: https://lu.ma/ai
+    url: https://lu.ma/ai-sf
 
-  - name: Partiful Discover
+  # Different platform from Luma, so genuinely different events. Also the
+  # only source so far whose JSON-LD carries a description, which is where
+  # one_liner comes from for free.
+  - name: Meetup SF Tech
     type: page
-    url: https://partiful.com/discover
-    # Partiful is mostly private invites; this catches the public ones.
+    url: https://www.meetup.com/find/?location=us--ca--San%20Francisco&source=EVENTS&categoryId=546
 
+  # Has full event data, but a San Francisco URL returns Hong Kong
+  # conferences and repeats the same event three times. Needs a location
+  # check and the step-6 dedup before it's trustworthy.
   - name: Eventbrite SF Tech
     type: page
     url: https://www.eventbrite.com/d/ca--san-francisco/technology--events/
+
+  # Muted: the public discover feed is a consumer product. Its five SF
+  # entries were a candle class, a picnic, a photo walk, a pastry pop-up
+  # and "Berkeley Nights" — zero professional events. URL kept in case
+  # Partiful ever exposes something closer to what we want.
+  - name: Partiful Discover
+    type: page
+    url: https://partiful.com/discover
+    enabled: false
 
   # --- Company events --------------------------------------------------
   # These companies don't keep one scrapable events page, so search
