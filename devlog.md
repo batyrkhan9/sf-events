@@ -147,3 +147,25 @@ seen.json was uneventful by comparison. The one design point worth recording:
 recording is separate from checking, so a dry run can ask what's new without
 marking it sent. Wiring those together would mean a test run silently
 emptying that morning's real digest.
+
+## Step 7 — the digest, and seeing the thing for the first time
+
+Formatting and sending are separate functions, which meant the whole
+formatter could be tested with no token and no network — worth doing, since
+that's where most of what can go wrong lives. Telegram gets HTML rather than
+MarkdownV2: MarkdownV2 needs about eighteen characters escaped and these
+event titles are full of them ("Founders & Funders", "Kong x AWS Meetup:"),
+where HTML needs three and the standard library does it. Verified with a
+deliberately hostile title containing a `<script>` tag.
+
+Day headers read "Tonight" and "Tomorrow" before falling back to weekday
+names. Small thing, but an ISO date makes you do arithmetic at 8am, which is
+exactly when this gets read.
+
+The useful part was seeing real output for the first time. Two things landed
+that no amount of planning would have surfaced. Eventbrite publishes dates
+with no time at all, so those entries show a venue and no clock — not
+fixable from this end, the data isn't in the page. And the unfiltered digest
+runs to 49 events, including a poetry night, a 5k sunset run and a chess
+club. That's the strongest argument yet for the filter: this is the version
+you'd stop opening by Thursday.
