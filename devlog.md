@@ -169,3 +169,34 @@ fixable from this end, the data isn't in the page. And the unfiltered digest
 runs to 49 events, including a poetry night, a 5k sunset run and a chess
 club. That's the strongest argument yet for the filter: this is the version
 you'd stop opening by Thursday.
+
+## Step 8 — the pipeline, and what a full run exposes
+
+`main.py` is mostly plumbing, so the interesting parts are the failure
+paths. Sources are wrapped individually: two dead sources alongside a live
+one logs two warnings and still delivers 20 events. Only every source failing
+exits non-zero, which is what makes cron notice a genuine outage rather than
+a quiet news day. A filter failure sends the digest unfiltered and says so —
+49 events beats nothing. And `seen.json` is written only after delivery
+succeeds, because a crash mid-send would otherwise mark events as delivered
+and lose them for good.
+
+The per-stage count line (`parsed: 50 -> deduped: 49 -> professional: 49 ->
+new: 49`) exists for the morning when the digest looks wrong and the question
+is which stage ate the events.
+
+Running the whole thing and actually reading the output surfaced three bugs
+that every isolated test had missed. A TECHSPO expo in June 2027 rendered as
+"Thursday 24 Jun" — no year, so it read as this June. Luma sends
+`priceCurrency` as lowercase "usd", which a case-sensitive check turned into
+"usd 20" instead of "$20". And Meetup descriptions are markdown, so they
+arrived carrying literal `**bold**` and `[RSVP here](url)` into the message
+body. None of these were logic errors; all three were only visible by looking
+at the finished artifact. That's the recurring theme of this project — every
+real bug so far came from running the thing against live data and reading the
+result, not from reasoning about the code.
+
+The free pipeline is complete. What's left are the two paid decisions: the
+filter (~$0.15/month, turns 49 events into maybe 15 worth reading) and step
+5's company searches (~$1/month, adds Google, Nvidia and OpenAI). Both are
+toggles, and the tool works without either.
