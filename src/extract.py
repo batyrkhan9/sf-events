@@ -244,16 +244,30 @@ def _price(offers: object) -> str:
         return ""
     if str(price) in ("0", "0.0", "0.00"):
         return "Free"
-    currency = offers.get("priceCurrency", "")
+    # Luma sends "usd" lowercase, so a case-sensitive check rendered "$20"
+    # as "usd 20".
+    currency = str(offers.get("priceCurrency", "")).upper()
     symbol = "$" if currency in ("USD", "") else f"{currency} "
     return f"{symbol}{price}"
 
 
 def _clean_description(text: object) -> str:
-    """Collapse a description into one line. Luma omits these entirely."""
+    """Collapse a description into one readable line.
+
+    Meetup and Luma descriptions are markdown, so they arrive full of
+    '**bold**', '\\#' headings and '[RSVP here](url)' — which render as
+    literal noise in a Telegram message. The filter rewrites these into a
+    proper one_liner anyway; this is what an unfiltered run shows.
+    """
     if not isinstance(text, str):
         return ""
-    return re.sub(r"\s+", " ", text).strip()[:300]
+    text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)  # links -> label
+    text = re.sub(r"[*_#`~\\]+", "", text)                # emphasis markers
+    text = re.sub(r"\s+", " ", text).strip()
+    if len(text) > 160:
+        # Cut at a word boundary; a mid-word ellipsis reads as corruption.
+        text = text[:160].rsplit(" ", 1)[0] + "…"
+    return text
 
 
 def in_bay_area(event: Event) -> bool:

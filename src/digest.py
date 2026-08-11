@@ -44,6 +44,10 @@ def day_header(iso_date: str, today: date | None = None) -> str:
         return "Tomorrow"
     if when <= today + timedelta(days=6):
         return when.strftime("%A")
+    if when.year != today.year:
+        # Eventbrite lists conferences years out. Without the year, a
+        # June 2027 expo reads as "Thursday 24 Jun" — this June.
+        return when.strftime("%A %-d %b %Y")
     return when.strftime("%A %-d %b")
 
 

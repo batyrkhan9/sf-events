@@ -20,5 +20,8 @@ raw/
 # Local working notes, not part of the published project
 CLAUDE.md
 
+# Cron output
+digest.log
+
 # macOS
 .DS_Store

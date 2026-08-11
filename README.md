@@ -100,16 +100,60 @@ anything.
 
 ### Running it
 
-The full pipeline arrives in step 8. Until then each stage runs on its own,
-and none of these spend money unless you add `--filter`:
+```bash
+python -m src.main --dry-run --no-filter   # free, sends nothing, records nothing
+python -m src.main --dry-run               # filtered, but still sends nothing
+python -m src.main                         # the real thing
+```
+
+`--dry-run` skips both sending *and* recording to `seen.json`. That second
+part matters: a test run that marked events as seen would leave your real
+digest empty that morning.
+
+`--no-filter` skips the Claude call, so the run costs nothing and the digest
+is unfiltered. Filtering happens automatically when `ANTHROPIC_API_KEY` is
+set, and every filtered run prints what it cost.
+
+Individual stages also run on their own, which is useful when something looks
+wrong:
 
 ```bash
 python -m src.fetch              # fetch every source, cache pages in raw/
-python -m src.extract            # parse events out of the cached pages
-python -m src.extract --estimate # show the filter prompt and its cost, send nothing
-python -m src.extract --filter   # the only command that calls the API
+python -m src.extract            # parse events out of the pages
+python -m src.extract --estimate # show the filter prompt and cost, send nothing
 python -m src.dedupe             # show what merges across platforms, and why
 python -m src.digest             # build today's digest and print it
+```
+
+### Running it daily
+
+```bash
+crontab -e
+```
+
+```cron
+0 7 * * *  cd /path/to/sf-events && set -a && . ./.env && set +a && .venv/bin/python -m src.main >> digest.log 2>&1
+```
+
+Three things that trip this up, in the order they usually bite:
+
+**Cron has almost no environment.** It won't read your `.env`, and `python`
+may not even be on its `PATH`. Hence the explicit `. ./.env` and the full
+path to `.venv/bin/python`. This is the classic reason a job works by hand
+and silently does nothing at 7am.
+
+**Redirect the output.** Without `>> digest.log 2>&1` the summary line and
+any warnings go nowhere, and a source that quietly started failing is
+invisible. The log is the only place a partial failure shows up.
+
+**On macOS, cron needs Full Disk Access.** System Settings → Privacy &
+Security → Full Disk Access → add `/usr/sbin/cron`. Without it the job runs
+but can't read your project directory.
+
+Test the exact command before trusting it:
+
+```bash
+cd /path/to/sf-events && set -a && . ./.env && set +a && .venv/bin/python -m src.main --dry-run
 ```
 
 ## Devlog
