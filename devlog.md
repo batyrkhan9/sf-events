@@ -111,3 +111,39 @@ parse. Roughly half a cent per run, about fifteen cents a month. It is
 written but has never been executed — `--estimate` prints the prompt and the
 cost without sending anything, and `--filter` is the only path that spends
 money. Deliberate: the code is ready whenever the API key is, and not before.
+
+## Step 6 — dedup, where the obvious approach was wrong twice
+
+Step 5 got postponed. The company searches need the API and there's no way to
+build them and leave them unrun the way the filter was, so the plan is to
+finish the free pipeline first and evaluate that step against a tool that
+already works rather than in the abstract.
+
+The plan for dedup was fuzzy title matching above a threshold, and the plan
+was wrong in both directions — which only showed up by running it against the
+real 50 events. It merged Luma's "Claude Code Workshop" and "Claude
+Coworkshop": same day, same host, 0.92 similar, and two genuinely different
+events with different Luma URLs. One of them was being silently deleted. At
+the same time it missed the actual cross-post — "AI Engineers Tech Talk:
+August" on Luma and "SF AI Engineers: Aug" on Meetup, the same event on two
+platforms, scoring only 0.67.
+
+The fix was to stop treating title similarity as the signal and treat it as
+one signal among three. A platform never lists one event under two URLs, so
+same-source-different-URL is now a hard block regardless of how alike the
+titles are. And weaker title agreement is accepted when corroborated by a
+matching start time plus host overlap, which is what catches the retitled
+repost — its hosts, "AI Engineers - SF" and "San Francisco AI Engineers",
+overlap completely once compared as word sets rather than character
+sequences. Hence `token_overlap` next to `SequenceMatcher`: platforms reorder
+and pad titles freely, and character-level matching is bad at exactly that.
+
+The count didn't change (50 to 49 either way) but the merge it makes is now
+the right one. A metric that looks identical while the behaviour underneath
+is wrong is a good argument for reading the actual pairs rather than the
+summary line.
+
+seen.json was uneventful by comparison. The one design point worth recording:
+recording is separate from checking, so a dry run can ask what's new without
+marking it sent. Wiring those together would mean a test run silently
+emptying that morning's real digest.
